@@ -1,3 +1,28 @@
+// ==== Custom Stock Names ====
+let stockNames = [
+    "Reliance Industries",
+    "Tata Consultancy Services",
+    "HDFC Bank",
+    "Infosys",
+    "ICICI Bank",
+    "Larsen & Toubro",
+    "State Bank of India",
+    "Bharti Airtel",
+    "Hindustan Unilever",
+    "ITC Ltd",
+    "Asian Paints",
+    "Kotak Mahindra Bank",
+    "Bajaj Finance",
+    "Wipro",
+    "Adani Enterprises",
+    "HCL Technologies",
+    "Sun Pharma",
+    "UltraTech Cement",
+    "Axis Bank",
+    "Power Grid Corporation"
+];
+
+// ==== Game Data ====
 let teams = JSON.parse(localStorage.getItem("teams") || "[]");
 let prices = JSON.parse(localStorage.getItem("prices") || "{}");
 let currentRound = localStorage.getItem("currentRound") || 0;
@@ -9,7 +34,7 @@ function saveData(){
     localStorage.setItem("currentRound", currentRound);
 }
 
-// ----- TEAM REGISTRATION -----
+// ===== TEAM REGISTRATION =====
 function registerTeam(){
     teams.push({
         teamNumber: regTeamNumber.value,
@@ -26,14 +51,14 @@ function registerTeam(){
         holdings: {}
     });
     saveData();
-    alert("Team registered! Await admin approval.");
+    alert("✅ Team registered! Await admin approval.");
 }
 
-// ----- TEAM LOGIN -----
+// ===== TEAM LOGIN =====
 function teamLogin(){
     let team = teams.find(t=>t.teamNumber==teamNumber.value && t.password==teamPassword.value);
-    if(!team) return alert("Invalid credentials.");
-    if(!team.approved) return alert("Wait for admin approval.");
+    if(!team) return alert("❌ Invalid credentials.");
+    if(!team.approved) return alert("⏳ Wait for admin approval.");
     currentTeamIndex = teams.indexOf(team);
     loginSection.style.display="none";
     registrationSection.style.display="none";
@@ -43,15 +68,16 @@ function teamLogin(){
     updatePortfolio();
 }
 
-// ----- TRADING -----
+// ===== TRADING =====
 function loadStocks(){
     stockList.innerHTML="";
     let roundPrices = prices[currentRound] || {};
-    for(let s=1;s<=20;s++){
+    for(let s=1; s<=20; s++){
         let price = roundPrices[`stock${s}`] || 0;
+        let stockLabel = stockNames[s-1] || `Stock ${s}`;
         let opt = document.createElement("option");
         opt.value = `stock${s}`;
-        opt.textContent = `Stock ${s} - ₹${price}`;
+        opt.textContent = `${stockLabel} - ₹${price}`;
         stockList.appendChild(opt);
     }
 }
@@ -62,19 +88,19 @@ function placeTrade(){
     let stock = stockList.value;
     let qty = parseInt(tradeQty.value);
     let price = prices[currentRound]?.[stock] || 0;
-    if(qty <= 0) return alert("Invalid quantity.");
-    if(currentRound <= 3 && type == "SELL") return alert("Selling not allowed in rounds 1-3");
+    if(qty <= 0) return alert("❌ Invalid quantity.");
+    if(currentRound <= 3 && type == "SELL") return alert("🚫 Selling not allowed in rounds 1-3");
 
     let totalValue = price * qty;
     let brokerage = (type=="BUY" ? 0.01 : -0.01) * totalValue;
     let net = totalValue + brokerage;
 
     if(type=="BUY"){
-        if(team.cash < net) return alert("Not enough cash.");
+        if(team.cash < net) return alert("❌ Not enough cash.");
         team.cash -= net;
         team.holdings[stock] = (team.holdings[stock] || 0) + qty;
     } else {
-        if(!team.holdings[stock] || team.holdings[stock] < qty) return alert("Not enough stock to sell.");
+        if(!team.holdings[stock] || team.holdings[stock] < qty) return alert("❌ Not enough stock to sell.");
         team.holdings[stock] -= qty;
         team.cash += (totalValue + brokerage);
     }
@@ -91,18 +117,20 @@ function updatePortfolio(){
         if(team.holdings[stock] > 0){
             let val = team.holdings[stock] * (roundPrices[stock] || 0);
             totalStockValue += val;
-            portfolioTable.innerHTML += `<tr><td>${stock}</td><td>${team.holdings[stock]}</td><td>₹${val.toLocaleString()}</td></tr>`;
+            let stockIndex = parseInt(stock.replace('stock','')) - 1;
+            let stockLabel = stockNames[stockIndex] || stock;
+            portfolioTable.innerHTML += `<tr><td>${stockLabel}</td><td>${team.holdings[stock]}</td><td>₹${val.toLocaleString()}</td></tr>`;
         }
     }
     cashDisplay.textContent = team.cash.toLocaleString();
     totalValueDisplay.textContent = (team.cash + totalStockValue).toLocaleString();
 }
 
-// ----- ADMIN LOGIN -----
+// ===== ADMIN LOGIN =====
 function adminLogin(){
     let p = adminPass.value;
-    // set your own password here:
-    if(true){
+    // 🔐 Set your password here
+    if(true){ 
         adminControls.style.display="block";
         renderApprovalList();
         renderPriceSetup();
@@ -110,18 +138,20 @@ function adminLogin(){
     }
 }
 
-// ----- ADMIN FUNCTIONS -----
+// ===== ADMIN FUNCTIONS =====
 function updateRound(){
     currentRound = document.getElementById("currentRound").value;
     saveData();
+    renderPriceSetup();
 }
 
 function renderPriceSetup(){
     let div = document.getElementById("priceSetup");
     if(!div) return;
     div.innerHTML="";
-    for(let s=1;s<=20;s++){
-        div.innerHTML += `<div>Stock ${s}: <input type="number" id="stock${s}" value="${prices[currentRound]?.[`stock${s}`]||0}"></div>`;
+    for(let s=1; s<=20; s++){
+        let stockLabel = stockNames[s-1] || `Stock ${s}`;
+        div.innerHTML += `<div>${stockLabel}: <input type="number" id="stock${s}" value="${prices[currentRound]?.[`stock${s}`]||0}"></div>`;
     }
 }
 
@@ -131,14 +161,14 @@ function savePrices(){
         prices[currentRound][`stock${s}`] = parseFloat(document.getElementById(`stock${s}`).value) || 0;
     }
     saveData();
-    alert("Prices saved.");
+    alert("💾 Prices saved for Round " + currentRound);
 }
 
 function renderApprovalList(){
     let div = document.getElementById("approvalList");
     div.innerHTML="";
     teams.forEach((t,idx)=>{
-        div.innerHTML += `<div>${t.teamNumber} - ${t.teamName} [${t.approved?"Approved":"Pending"}] 
+        div.innerHTML += `<div>${t.teamNumber} - ${t.teamName} [${t.approved?"✅ Approved":"⏳ Pending"}] 
         <button onclick="approveTeam(${idx})">Approve</button></div>`;
     });
 }
@@ -149,7 +179,7 @@ function approveTeam(idx){
     renderApprovalList();
 }
 
-// ----- LEADERBOARD -----
+// ===== LEADERBOARD =====
 function renderLeaderboard(){
     let tbody = document.querySelector("#leaderboardTable tbody");
     if(!tbody) return;
@@ -165,3 +195,4 @@ function renderLeaderboard(){
         tbody.innerHTML += `<tr><td>${i+1}</td><td>${s.team}</td><td>₹${s.total.toLocaleString()}</td></tr>`;
     });
 }
+
