@@ -22,7 +22,6 @@ let stockNames = [
     "Power Grid Corporation"
 ];
 
-// ==== Game Data ====
 let teams = JSON.parse(localStorage.getItem("teams") || "[]");
 let prices = JSON.parse(localStorage.getItem("prices") || "{}");
 let currentRound = localStorage.getItem("currentRound") || 0;
@@ -37,15 +36,15 @@ function saveData(){
 // ===== TEAM REGISTRATION =====
 function registerTeam(){
     teams.push({
-        teamNumber: regTeamNumber.value,
-        teamName: regTeamName.value,
+        teamNumber: regTeamNumber.value.trim(),
+        teamName: regTeamName.value.trim(),
         members: [
             {name: m1name.value, contact: m1contact.value},
             {name: m2name.value, contact: m2contact.value},
             {name: m3name.value, contact: m3contact.value},
             {name: m4name.value, contact: m4contact.value}
         ],
-        password: regPassword.value,
+        password: regPassword.value.trim(),
         approved: false,
         cash: 2000000,
         holdings: {}
@@ -88,8 +87,9 @@ function placeTrade(){
     let stock = stockList.value;
     let qty = parseInt(tradeQty.value);
     let price = prices[currentRound]?.[stock] || 0;
+
     if(qty <= 0) return alert("❌ Invalid quantity.");
-    if(currentRound <= 3 && type == "SELL") return alert("🚫 Selling not allowed in rounds 1-3");
+    if(currentRound <= 3 && type == "SELL") return alert("🚫 Selling not allowed in rounds 1–3");
 
     let totalValue = price * qty;
     let brokerage = (type=="BUY" ? 0.01 : -0.01) * totalValue;
@@ -129,12 +129,14 @@ function updatePortfolio(){
 // ===== ADMIN LOGIN =====
 function adminLogin(){
     let p = adminPass.value;
-    // 🔐 Set your password here
-    if(true){ 
+    // 🔐 Set your own admin password here
+    if (p === "admin123") { // CHANGE THIS
         adminControls.style.display="block";
         renderApprovalList();
         renderPriceSetup();
         document.getElementById("currentRound").value = currentRound;
+    } else {
+        alert("❌ Wrong admin password.");
     }
 }
 
@@ -166,10 +168,33 @@ function savePrices(){
 
 function renderApprovalList(){
     let div = document.getElementById("approvalList");
-    div.innerHTML="";
-    teams.forEach((t,idx)=>{
-        div.innerHTML += `<div>${t.teamNumber} - ${t.teamName} [${t.approved?"✅ Approved":"⏳ Pending"}] 
-        <button onclick="approveTeam(${idx})">Approve</button></div>`;
+    div.innerHTML = `
+        <table border="1" style="width:100%; border-collapse:collapse;">
+            <tr>
+                <th>Team #</th>
+                <th>Team Name</th>
+                <th>Status</th>
+                <th>Password</th>
+                <th>Actions</th>
+            </tr>
+        </table>
+    `;
+
+    let table = div.querySelector("table");
+
+    teams.forEach((t, idx) => {
+        let row = table.insertRow();
+        row.insertCell(0).textContent = t.teamNumber;
+        row.insertCell(1).textContent = t.teamName;
+        row.insertCell(2).innerHTML = t.approved 
+            ? "<span style='color:green;'>Approved</span>"
+            : "<span style='color:orange;'>Pending</span>";
+        row.insertCell(3).textContent = t.password; // Visible to admin only
+        let actionsCell = row.insertCell(4);
+        actionsCell.innerHTML = `
+            <button onclick="approveTeam(${idx})">Approve</button>
+            <button onclick="resetTeamPassword(${idx})">Reset Password</button>
+        `;
     });
 }
 
@@ -179,9 +204,19 @@ function approveTeam(idx){
     renderApprovalList();
 }
 
+function resetTeamPassword(index) {
+    let newPass = prompt("Enter new password for " + teams[index].teamName + ":");
+    if (newPass && newPass.trim() !== "") {
+        teams[index].password = newPass.trim();
+        saveData();
+        alert("✅ Password updated for " + teams[index].teamName);
+        renderApprovalList();
+    }
+}
+
 // ===== LEADERBOARD =====
 function renderLeaderboard(){
-    let tbody = document.querySelector("#leaderboardTable tbody");
+    let tbody = document.querySelector("#leaderboardTableBody") || document.querySelector("#leaderboardTable tbody");
     if(!tbody) return;
     let standings = teams.map(t=>{
         let totalStockValue = 0;
@@ -195,4 +230,3 @@ function renderLeaderboard(){
         tbody.innerHTML += `<tr><td>${i+1}</td><td>${s.team}</td><td>₹${s.total.toLocaleString()}</td></tr>`;
     });
 }
-
