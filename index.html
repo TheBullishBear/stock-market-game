@@ -1,61 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Stock Market Game - Team Portal</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<title>Stock Market Game - Teams</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<h1>🏦 Stock Market Game</h1>
+<header>
+  <h1>🏦 Stock Market Game</h1>
+</header>
 
-<div id="loginSection">
-    <h2>Team Login</h2>
+<main class="container">
+  <!-- Login -->
+  <section class="card" id="loginSection">
+    <h2>🔑 Team Login</h2>
     <input type="text" id="teamNumber" placeholder="Team Number">
     <input type="password" id="teamPassword" placeholder="Password">
-    <button onclick="teamLogin()">Login</button>
-</div>
+    <button class="btn btn-primary" onclick="teamLogin()">Login</button>
+  </section>
 
-<hr>
-
-<div id="registrationSection">
-    <h2>Team Registration</h2>
+  <!-- Registration -->
+  <section class="card" id="registrationSection">
+    <h2>📝 Team Registration</h2>
     <input type="text" id="regTeamNumber" placeholder="Team Number">
-    <input type="text" id="regTeamName" placeholder="Team Name"><br>
-    <input type="text" placeholder="Member 1 Name" id="m1name">
-    <input type="text" placeholder="Member 1 Contact" id="m1contact"><br>
-    <input type="text" placeholder="Member 2 Name" id="m2name">
-    <input type="text" placeholder="Member 2 Contact" id="m2contact"><br>
-    <input type="text" placeholder="Member 3 Name" id="m3name">
-    <input type="text" placeholder="Member 3 Contact" id="m3contact"><br>
-    <input type="text" placeholder="Member 4 Name" id="m4name">
-    <input type="text" placeholder="Member 4 Contact" id="m4contact"><br>
+    <input type="text" id="regTeamName" placeholder="Team Name">
+    <input type="text" id="m1name" placeholder="Member 1 Name">
+    <input type="text" id="m1contact" placeholder="Member 1 Contact">
+    <input type="text" id="m2name" placeholder="Member 2 Name">
+    <input type="text" id="m2contact" placeholder="Member 2 Contact">
+    <input type="text" id="m3name" placeholder="Member 3 Name">
+    <input type="text" id="m3contact" placeholder="Member 3 Contact">
+    <input type="text" id="m4name" placeholder="Member 4 Name">
+    <input type="text" id="m4contact" placeholder="Member 4 Contact">
     <input type="password" id="regPassword" placeholder="Set Password">
-    <button onclick="registerTeam()">Register</button>
-</div>
+    <button class="btn btn-success" onclick="registerTeam()">Register</button>
+  </section>
 
-<div id="tradingSection" style="display:none;">
-    <h2>Trading - Current Round: <span id="roundDisplay"></span></h2>
-    <label>Buy/Sell:</label>
-    <select id="tradeType">
+  <!-- Trading -->
+  <section class="card" id="tradingSection" style="display:none;">
+    <h2>💹 Trading - Round <span id="roundDisplay"></span></h2>
+    <div class="trading-controls">
+      <label>Type:</label>
+      <select id="tradeType">
         <option value="BUY">BUY</option>
         <option value="SELL">SELL</option>
-    </select>
-    <label>Stock:</label>
-    <select id="stockList"></select>
-    <label>Quantity:</label>
-    <input type="number" id="tradeQty" min="1">
-    <button onclick="placeTrade()">Submit Trade</button>
+      </select>
+      <label>Stock:</label>
+      <select id="stockList"></select>
+      <label>Quantity:</label>
+      <input type="number" id="tradeQty" min="1">
+      <button class="btn btn-buy" onclick="placeTrade()">Execute</button>
+    </div>
 
-    <h3>Your Portfolio</h3>
-    <table border="1">
-        <thead>
+    <h3>📊 Portfolio</h3>
+    <table>
+      <thead>
         <tr><th>Stock</th><th>Quantity</th><th>Value</th></tr>
-        </thead>
-        <tbody id="portfolioTable"></tbody>
+      </thead>
+      <tbody id="portfolioTable"></tbody>
     </table>
-    <p><b>Cash:</b> ₹<span id="cashDisplay"></span></p>
-    <p><b>Total Value:</b> ₹<span id="totalValueDisplay"></span></p>
-</div>
+    <p><b>💵 Cash Balance:</b> ₹<span id="cashDisplay"></span></p>
+    <p><b>📈 Total Value:</b> ₹<span id="totalValueDisplay"></span></p>
+  </section>
+</main>
 
 <script src="script.js"></script>
 </body>
