@@ -10,16 +10,6 @@ let stockNames = [
     "Bharti Airtel",
     "Hindustan Unilever",
     "ITC Ltd",
-    "Asian Paints",
-    "Kotak Mahindra Bank",
-    "Bajaj Finance",
-    "Wipro",
-    "Adani Enterprises",
-    "HCL Technologies",
-    "Sun Pharma",
-    "UltraTech Cement",
-    "Axis Bank",
-    "Power Grid Corporation"
 ];
 
 let teams = JSON.parse(localStorage.getItem("teams") || "[]");
@@ -244,3 +234,4 @@ function submitAllTrades() {
 // (Make sure you include or keep your adminLogin(), updateRound(), renderPriceSetup(), savePrices(), renderApprovalList(), approveTeam(), resetTeamPassword(), deleteTeam(), renderLeaderboard() functions untouched.)
 
 // ... your existing code continues here ...
+
