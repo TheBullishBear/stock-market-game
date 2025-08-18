@@ -10,6 +10,16 @@ let stockNames = [
     "Bharti Airtel",
     "Hindustan Unilever",
     "ITC Ltd",
+    "Asian Paints",
+    "Kotak Mahindra Bank",
+    "Bajaj Finance",
+    "Wipro",
+    "Adani Enterprises",
+    "HCL Technologies",
+    "Sun Pharma",
+    "UltraTech Cement",
+    "Axis Bank",
+    "Power Grid Corporation"
 ];
 
 let teams = JSON.parse(localStorage.getItem("teams") || "[]");
