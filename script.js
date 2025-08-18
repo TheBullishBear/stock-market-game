@@ -130,7 +130,7 @@ function updatePortfolio(){
 function adminLogin(){
     let p = adminPass.value;
     // 🔐 Set your own admin password here
-    if (p === "admin123") { // CHANGE THIS
+    if (p === "admin123") { // CHANGE THIS!
         adminControls.style.display="block";
         renderApprovalList();
         renderPriceSetup();
@@ -194,6 +194,7 @@ function renderApprovalList(){
         actionsCell.innerHTML = `
             <button onclick="approveTeam(${idx})">Approve</button>
             <button onclick="resetTeamPassword(${idx})">Reset Password</button>
+            <button onclick="deleteTeam(${idx})" style="background:#dc3545;color:white;">Delete</button>
         `;
     });
 }
@@ -211,6 +212,15 @@ function resetTeamPassword(index) {
         saveData();
         alert("✅ Password updated for " + teams[index].teamName);
         renderApprovalList();
+    }
+}
+
+function deleteTeam(idx) {
+    if (confirm("Are you sure you want to delete team " + teams[idx].teamName + "?")) {
+        teams.splice(idx, 1);
+        saveData();
+        renderApprovalList();
+        alert("✅ Team deleted!");
     }
 }
 
