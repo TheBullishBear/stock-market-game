@@ -22,16 +22,43 @@ let stockNames = [
     "Power Grid Corporation"
 ];
 
-let teams = JSON.parse(localStorage.getItem("teams") || "[]");
-let prices = JSON.parse(localStorage.getItem("prices") || "{}");
-let currentRound = localStorage.getItem("currentRound") || 0;
-let currentTeamIndex = null;
-
+// ==== DOM ELEMENT REFERENCES ====
+const regTeamNumber = document.getElementById("regTeamNumber");
+const regTeamName = document.getElementById("regTeamName");
+const m1name = document.getElementById("m1name");
+const m1contact = document.getElementById("m1contact");
+const m2name = document.getElementById("m2name");
+const m2contact = document.getElementById("m2contact");
+const m3name = document.getElementById("m3name");
+const m3contact = document.getElementById("m3contact");
+const m4name = document.getElementById("m4name");
+const m4contact = document.getElementById("m4contact");
+const regPassword = document.getElementById("regPassword");
+const teamNumber = document.getElementById("teamNumber");
+const teamPassword = document.getElementById("teamPassword");
+const loginSection = document.getElementById("loginSection");
+const registrationSection = document.getElementById("registrationSection");
+const tradingSection = document.getElementById("tradingSection");
+const roundDisplay = document.getElementById("roundDisplay");
+const portfolioTable = document.getElementById("portfolioTable");
+const cashDisplay = document.getElementById("cashDisplay");
+const totalValueDisplay = document.getElementById("totalValueDisplay");
+const tradeType = document.getElementById("tradeType");
+const stockList = document.getElementById("stockList");
+const tradeQty = document.getElementById("tradeQty");
+// Elements for review/confirm trades
 const reviewTradesBtn = document.getElementById("reviewTradesBtn");
 const reviewSection = document.getElementById("reviewSection");
 const pendingTradesTableBody = document.getElementById("pendingTradesTableBody");
 const roundReview = document.getElementById("roundReview");
 
+// ==== STORAGE ====
+let teams = JSON.parse(localStorage.getItem("teams") || "[]");
+let prices = JSON.parse(localStorage.getItem("prices") || "{}");
+let currentRound = localStorage.getItem("currentRound") || 0;
+let currentTeamIndex = null;
+
+// ==== PERSISTENCE ====
 function saveData() {
     localStorage.setItem("teams", JSON.stringify(teams));
     localStorage.setItem("prices", JSON.stringify(prices));
@@ -117,7 +144,7 @@ function placeTrade() {
 
 // Review trades button visibility
 function updateReviewButton() {
-    if (!currentTeamIndex && currentTeamIndex !== 0) return;
+    if (currentTeamIndex === null || currentTeamIndex === undefined) return;
     let team = teams[currentTeamIndex];
     if (team.pendingTrades[currentRound] && team.pendingTrades[currentRound].length > 0) {
         reviewTradesBtn.style.display = 'inline-block';
@@ -138,7 +165,7 @@ function hideReview() {
 // Load pending trades table
 function loadPendingTradesTable() {
     pendingTradesTableBody.innerHTML = '';
-    if (!currentTeamIndex && currentTeamIndex !== 0) return;
+    if (currentTeamIndex === null || currentTeamIndex === undefined) return;
     let trades = teams[currentTeamIndex].pendingTrades[currentRound] || [];
 
     trades.forEach((trade, index) => {
@@ -162,7 +189,7 @@ function loadPendingTradesTable() {
 
 // Edit pending trade quantity
 function editTrade(index) {
-    if (!currentTeamIndex && currentTeamIndex !== 0) return;
+    if (currentTeamIndex === null || currentTeamIndex === undefined) return;
     let trades = teams[currentTeamIndex].pendingTrades[currentRound];
     let trade = trades[index];
     let newQty = prompt(`Edit quantity for ${trade.type} ${stockNames[parseInt(trade.stock.replace('stock', '')) - 1]}:`, trade.qty);
@@ -178,7 +205,7 @@ function editTrade(index) {
 
 // Delete pending trade
 function deleteTrade(index) {
-    if (!currentTeamIndex && currentTeamIndex !== 0) return;
+    if (currentTeamIndex === null || currentTeamIndex === undefined) return;
     let trades = teams[currentTeamIndex].pendingTrades[currentRound];
     if (confirm("Delete this trade?")) {
         trades.splice(index, 1);
@@ -190,7 +217,7 @@ function deleteTrade(index) {
 
 // Submit all pending trades for the round
 function submitAllTrades() {
-    if (!currentTeamIndex && currentTeamIndex !== 0) return;
+    if (currentTeamIndex === null || currentTeamIndex === undefined) return;
     let team = teams[currentTeamIndex];
     let trades = team.pendingTrades[currentRound] || [];
     if (trades.length === 0) {
@@ -244,10 +271,32 @@ function submitAllTrades() {
     alert("✅ All trades submitted successfully.");
 }
 
+// ===== PORTFOLIO TABLE UPDATE =====
+function updatePortfolio() {
+    let team = teams[currentTeamIndex];
+    let roundPrices = prices[currentRound] || {};
+    portfolioTable.innerHTML = "";
+    let totalStockValue = 0;
+    for (let stock in team.holdings) {
+        if (team.holdings[stock] > 0) {
+            let val = team.holdings[stock] * (roundPrices[stock] || 0);
+            totalStockValue += val;
+            let stockIndex = parseInt(stock.replace('stock', '')) - 1;
+            let stockLabel = stockNames[stockIndex] || stock;
+            portfolioTable.innerHTML += `<tr><td>${stockLabel}</td><td>${team.holdings[stock]}</td><td>₹${val.toLocaleString()}</td></tr>`;
+        }
+    }
+    cashDisplay.textContent = team.cash.toLocaleString();
+    totalValueDisplay.textContent = (team.cash + totalStockValue).toLocaleString();
+}
+
 // ===== ADMIN LOGIN =====
 function adminLogin() {
+    const adminPass = document.getElementById("adminPass");
+    const adminControls = document.getElementById("adminControls");
+    if (!adminPass || !adminControls) return;
     let p = adminPass.value;
-    if (p === "admin123") { // Change this password as needed
+    if (p === "admin123") {
         adminControls.style.display = "block";
         renderApprovalList();
         renderPriceSetup();
@@ -257,7 +306,7 @@ function adminLogin() {
     }
 }
 
-// ===== ADMIN FUNCTIONS =====
+// ===== ADMIN FUNCTIONS (PRICE, ROUNDS, TEAMS, ETC.) =====
 function updateRound() {
     currentRound = document.getElementById("currentRound").value;
     saveData();
@@ -306,7 +355,7 @@ function renderApprovalList() {
         row.insertCell(2).innerHTML = t.approved
             ? "<span style='color:green;'>Approved</span>"
             : "<span style='color:orange;'>Pending</span>";
-        row.insertCell(3).textContent = t.password; // Visible to admin only
+        row.insertCell(3).textContent = t.password;
         let actionsCell = row.insertCell(4);
         actionsCell.innerHTML = `
             <button onclick="approveTeam(${idx})">Approve</button>
