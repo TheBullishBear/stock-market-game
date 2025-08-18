@@ -9,7 +9,6 @@
 <header>
   <h1>🏦 Stock Market Game</h1>
 </header>
-
 <main class="container">
   <!-- Login -->
   <section class="card" id="loginSection">
@@ -18,29 +17,27 @@
     <input type="password" id="teamPassword" placeholder="Password">
     <button class="btn btn-primary" onclick="teamLogin()">Login</button>
   </section>
-
   <!-- Registration -->
   <section class="card" id="registrationSection">
     <h2>📝 Team Registration</h2>
     <input type="text" id="regTeamNumber" placeholder="Team Number">
     <input type="text" id="regTeamName" placeholder="Team Name">
-</br>
+    <br/>
     <input type="text" id="m1name" placeholder="Member 1 Name">
     <input type="text" id="m1contact" placeholder="Member 1 Contact">
-</br>
+    <br/>
     <input type="text" id="m2name" placeholder="Member 2 Name">
     <input type="text" id="m2contact" placeholder="Member 2 Contact">
-</br>
+    <br/>
     <input type="text" id="m3name" placeholder="Member 3 Name">
     <input type="text" id="m3contact" placeholder="Member 3 Contact">
-</br>    
+    <br/>    
     <input type="text" id="m4name" placeholder="Member 4 Name">
     <input type="text" id="m4contact" placeholder="Member 4 Contact">
-</br>    
+    <br/>    
     <input type="password" id="regPassword" placeholder="Set Password">
     <button class="btn btn-success" onclick="registerTeam()">Register</button>
   </section>
-
   <!-- Trading -->
   <section class="card" id="tradingSection" style="display:none;">
     <h2>💹 Trading - Round <span id="roundDisplay"></span></h2>
@@ -57,6 +54,22 @@
       <button class="btn btn-buy" onclick="placeTrade()">Execute</button>
     </div>
 
+    <!-- Review Trades button -->
+    <button id="reviewTradesBtn" class="btn btn-info" style="display:none; margin-top:10px;" onclick="showReview()">Review Trades</button>
+
+    <!-- Review pending trades section -->
+    <section class="card" id="reviewSection" style="display:none; margin-top:20px;">
+      <h2>📝 Review Pending Trades - Round <span id="roundReview"></span></h2>
+      <table>
+        <thead>
+          <tr><th>Type</th><th>Stock</th><th>Quantity</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="pendingTradesTableBody"></tbody>
+      </table>
+      <button class="btn btn-success" onclick="submitAllTrades()">Submit All Trades</button>
+      <button class="btn btn-secondary" onclick="hideReview()">Cancel</button>
+    </section>
+
     <h3>📊 Portfolio</h3>
     <table>
       <thead>
@@ -68,8 +81,6 @@
     <p><b>📈 Total Value:</b> ₹<span id="totalValueDisplay"></span></p>
   </section>
 </main>
-
 <script src="script.js"></script>
 </body>
 </html>
-
