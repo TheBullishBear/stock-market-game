@@ -31,10 +31,10 @@
     <br/>
     <input type="text" id="m3name" placeholder="Member 3 Name">
     <input type="text" id="m3contact" placeholder="Member 3 Contact">
-    <br/>    
+    <br/>
     <input type="text" id="m4name" placeholder="Member 4 Name">
     <input type="text" id="m4contact" placeholder="Member 4 Contact">
-    <br/>    
+    <br/>
     <input type="password" id="regPassword" placeholder="Set Password">
     <button class="btn btn-success" onclick="registerTeam()">Register</button>
   </section>
@@ -53,10 +53,8 @@
       <input type="number" id="tradeQty" min="1">
       <button class="btn btn-buy" onclick="placeTrade()">Execute</button>
     </div>
-
     <!-- Review Trades button -->
     <button id="reviewTradesBtn" class="btn btn-info" style="display:none; margin-top:10px;" onclick="showReview()">Review Trades</button>
-
     <!-- Review pending trades section -->
     <section class="card" id="reviewSection" style="display:none; margin-top:20px;">
       <h2>📝 Review Pending Trades - Round <span id="roundReview"></span></h2>
@@ -69,7 +67,6 @@
       <button class="btn btn-success" onclick="submitAllTrades()">Submit All Trades</button>
       <button class="btn btn-secondary" onclick="hideReview()">Cancel</button>
     </section>
-
     <h3>📊 Portfolio</h3>
     <table>
       <thead>
