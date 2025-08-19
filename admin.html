@@ -9,16 +9,12 @@
 <header>
   <h1>⚙️ Admin Dashboard</h1>
 </header>
-
 <main class="container">
-  <!-- Admin Login -->
   <section class="card" id="adminLogin">
     <h2>🔑 Admin Login</h2>
     <input type="password" id="adminPass" placeholder="Enter Password">
     <button class="btn btn-primary" onclick="adminLogin()">Login</button>
   </section>
-
-  <!-- Controls -->
   <section id="adminControls" style="display:none;">
     <div class="card">
       <h2>🎯 Game Controls</h2>
@@ -35,26 +31,21 @@
         <option value="8">Round 8</option>
       </select>
     </div>
-
     <div class="card">
       <h2>💲 Stock Prices Setup</h2>
       <div id="priceSetup"></div>
       <button class="btn btn-success" onclick="savePrices()">Save Prices</button>
     </div>
-
     <div class="card">
       <h2>👥 Team Approvals</h2>
       <div id="approvalList"></div>
     </div>
-
     <div class="card">
       <h2>📊 Leaderboard</h2>
       <iframe src="leaderboard.html" width="100%" height="400"></iframe>
     </div>
   </section>
 </main>
-
 <script src="script.js"></script>
 </body>
 </html>
-
