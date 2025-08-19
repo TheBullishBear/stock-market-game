@@ -14,12 +14,7 @@ let stockNames = [
     "Kotak Mahindra Bank",
     "Bajaj Finance",
     "Wipro",
-    "Adani Enterprises",
-    "HCL Technologies",
-    "Sun Pharma",
-    "UltraTech Cement",
-    "Axis Bank",
-    "Power Grid Corporation"
+    "idea",
 ];
 
 // ==== DOM ELEMENT REFERENCES ====
@@ -46,19 +41,16 @@ const totalValueDisplay = document.getElementById("totalValueDisplay");
 const tradeType = document.getElementById("tradeType");
 const stockList = document.getElementById("stockList");
 const tradeQty = document.getElementById("tradeQty");
-// Elements for review/confirm trades
 const reviewTradesBtn = document.getElementById("reviewTradesBtn");
 const reviewSection = document.getElementById("reviewSection");
 const pendingTradesTableBody = document.getElementById("pendingTradesTableBody");
 const roundReview = document.getElementById("roundReview");
 
-// ==== STORAGE ====
 let teams = JSON.parse(localStorage.getItem("teams") || "[]");
 let prices = JSON.parse(localStorage.getItem("prices") || "{}");
 let currentRound = localStorage.getItem("currentRound") || 0;
 let currentTeamIndex = null;
 
-// ==== PERSISTENCE ====
 function saveData() {
     localStorage.setItem("teams", JSON.stringify(teams));
     localStorage.setItem("prices", JSON.stringify(prices));
@@ -129,7 +121,6 @@ function placeTrade() {
         team.pendingTrades[currentRound] = [];
     }
 
-    // Add trade to pending array
     team.pendingTrades[currentRound].push({
         type: type,
         stock: stock,
@@ -142,7 +133,7 @@ function placeTrade() {
     updateReviewButton();
 }
 
-// Review trades button visibility
+// ===== PENDING TRADES (REVIEW & CONFIRM) =====
 function updateReviewButton() {
     if (currentTeamIndex === null || currentTeamIndex === undefined) return;
     let team = teams[currentTeamIndex];
@@ -162,18 +153,14 @@ function hideReview() {
     reviewSection.style.display = 'none';
 }
 
-// Load pending trades table
 function loadPendingTradesTable() {
     pendingTradesTableBody.innerHTML = '';
     if (currentTeamIndex === null || currentTeamIndex === undefined) return;
     let trades = teams[currentTeamIndex].pendingTrades[currentRound] || [];
-
     trades.forEach((trade, index) => {
         let tr = document.createElement('tr');
-
         let stockIdx = parseInt(trade.stock.replace('stock', '')) - 1;
         let stockName = stockNames[stockIdx] || trade.stock;
-
         tr.innerHTML = `
             <td>${trade.type}</td>
             <td>${stockName}</td>
@@ -187,7 +174,6 @@ function loadPendingTradesTable() {
     });
 }
 
-// Edit pending trade quantity
 function editTrade(index) {
     if (currentTeamIndex === null || currentTeamIndex === undefined) return;
     let trades = teams[currentTeamIndex].pendingTrades[currentRound];
@@ -203,7 +189,6 @@ function editTrade(index) {
     }
 }
 
-// Delete pending trade
 function deleteTrade(index) {
     if (currentTeamIndex === null || currentTeamIndex === undefined) return;
     let trades = teams[currentTeamIndex].pendingTrades[currentRound];
@@ -215,7 +200,6 @@ function deleteTrade(index) {
     }
 }
 
-// Submit all pending trades for the round
 function submitAllTrades() {
     if (currentTeamIndex === null || currentTeamIndex === undefined) return;
     let team = teams[currentTeamIndex];
@@ -224,34 +208,28 @@ function submitAllTrades() {
         alert("No pending trades to submit.");
         return;
     }
-
     let roundPrices = prices[currentRound] || {};
-
-    // Validate trades first
+    // Validate all trades first
     for (let trade of trades) {
         let price = roundPrices[trade.stock] || 0;
         let totalValue = trade.qty * price;
         let brokerage = (trade.type === "BUY" ? 0.01 : -0.01) * totalValue;
         let net = totalValue + brokerage;
-
         if (trade.type === "BUY" && team.cash < net) {
             alert(`Insufficient cash for ${trade.qty} shares of ${stockNames[parseInt(trade.stock.replace('stock', '')) - 1]}`);
             return;
         }
-
         if (trade.type === "SELL" && (!team.holdings[trade.stock] || team.holdings[trade.stock] < trade.qty)) {
             alert(`Insufficient holdings to sell ${trade.qty} shares of ${stockNames[parseInt(trade.stock.replace('stock', '')) - 1]}`);
             return;
         }
     }
-
     // Apply trades
     for (let trade of trades) {
         let price = roundPrices[trade.stock] || 0;
         let totalValue = trade.qty * price;
         let brokerage = (trade.type === "BUY" ? 0.01 : -0.01) * totalValue;
         let net = totalValue + brokerage;
-
         if (trade.type === "BUY") {
             team.cash -= net;
             team.holdings[trade.stock] = (team.holdings[trade.stock] || 0) + trade.qty;
@@ -260,8 +238,6 @@ function submitAllTrades() {
             team.cash += totalValue + brokerage;
         }
     }
-
-    // Clear pending trades for current round
     team.pendingTrades[currentRound] = [];
     saveData();
     updatePortfolio();
@@ -271,7 +247,7 @@ function submitAllTrades() {
     alert("✅ All trades submitted successfully.");
 }
 
-// ===== PORTFOLIO TABLE UPDATE =====
+// ===== PORTFOLIO VIEW =====
 function updatePortfolio() {
     let team = teams[currentTeamIndex];
     let roundPrices = prices[currentRound] || {};
@@ -290,7 +266,7 @@ function updatePortfolio() {
     totalValueDisplay.textContent = (team.cash + totalStockValue).toLocaleString();
 }
 
-// ===== ADMIN LOGIN =====
+// ===== ADMIN PANEL FUNCTIONS =====
 function adminLogin() {
     const adminPass = document.getElementById("adminPass");
     const adminControls = document.getElementById("adminControls");
@@ -306,7 +282,6 @@ function adminLogin() {
     }
 }
 
-// ===== ADMIN FUNCTIONS (PRICE, ROUNDS, TEAMS, ETC.) =====
 function updateRound() {
     currentRound = document.getElementById("currentRound").value;
     saveData();
@@ -345,9 +320,7 @@ function renderApprovalList() {
             </tr>
         </table>
     `;
-
     let table = div.querySelector("table");
-
     teams.forEach((t, idx) => {
         let row = table.insertRow();
         row.insertCell(0).textContent = t.teamNumber;
