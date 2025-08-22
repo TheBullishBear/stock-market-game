@@ -48,7 +48,7 @@ const roundReview = document.getElementById("roundReview");
 
 let teams = JSON.parse(localStorage.getItem("teams") || "[]");
 let prices = JSON.parse(localStorage.getItem("prices") || "{}");
-let currentRound = localStorage.getItem("currentRound") || 0;
+let currentRound = parseInt(localStorage.getItem("currentRound")) || 0;
 let currentTeamIndex = null;
 
 function saveData() {
@@ -84,6 +84,12 @@ function teamLogin() {
     if (!team) return alert("❌ Invalid credentials.");
     if (!team.approved) return alert("⏳ Wait for admin approval.");
     currentTeamIndex = teams.indexOf(team);
+    
+    // Ensure team has required properties (backward compatibility)
+    if (!team.holdings) team.holdings = {};
+    if (!team.pendingTrades) team.pendingTrades = {};
+    if (team.cash === undefined) team.cash = 2000000;
+    
     loginSection.style.display = "none";
     registrationSection.style.display = "none";
     tradingSection.style.display = "block";
@@ -253,13 +259,28 @@ function updatePortfolio() {
     let roundPrices = prices[currentRound] || {};
     portfolioTable.innerHTML = "";
     let totalStockValue = 0;
+    
     for (let stock in team.holdings) {
         if (team.holdings[stock] > 0) {
-            let val = team.holdings[stock] * (roundPrices[stock] || 0);
+            // Get current round price, fallback to latest available price if current round has no price
+            let currentPrice = roundPrices[stock];
+            if (currentPrice === undefined || currentPrice === 0) {
+                // Find the latest round that has a price for this stock
+                for (let round = currentRound - 1; round >= 0; round--) {
+                    if (prices[round] && prices[round][stock] !== undefined && prices[round][stock] > 0) {
+                        currentPrice = prices[round][stock];
+                        break;
+                    }
+                }
+                currentPrice = currentPrice || 0;
+            }
+            
+            let val = team.holdings[stock] * currentPrice;
             totalStockValue += val;
             let stockIndex = parseInt(stock.replace('stock', '')) - 1;
             let stockLabel = stockNames[stockIndex] || stock;
-            portfolioTable.innerHTML += `<tr><td>${stockLabel}</td><td>${team.holdings[stock]}</td><td>₹${val.toLocaleString()}</td></tr>`;
+            let priceDisplay = currentPrice > 0 ? `₹${currentPrice}` : 'No Price';
+            portfolioTable.innerHTML += `<tr><td>${stockLabel}</td><td>${team.holdings[stock]}</td><td>₹${val.toLocaleString()} (@ ${priceDisplay})</td></tr>`;
         }
     }
     cashDisplay.textContent = team.cash.toLocaleString();
@@ -283,7 +304,7 @@ function adminLogin() {
 }
 
 function updateRound() {
-    currentRound = document.getElementById("currentRound").value;
+    currentRound = parseInt(document.getElementById("currentRound").value);
     saveData();
     renderPriceSetup();
 }
@@ -370,7 +391,21 @@ function renderLeaderboard() {
     let standings = teams.map(t => {
         let totalStockValue = 0;
         for (let stock in t.holdings) {
-            totalStockValue += (t.holdings[stock] * (prices[currentRound]?.[stock] || 0));
+            if (t.holdings[stock] > 0) {
+                // Get current round price, fallback to latest available price if current round has no price
+                let currentPrice = prices[currentRound]?.[stock];
+                if (currentPrice === undefined || currentPrice === 0) {
+                    // Find the latest round that has a price for this stock
+                    for (let round = currentRound - 1; round >= 0; round--) {
+                        if (prices[round] && prices[round][stock] !== undefined && prices[round][stock] > 0) {
+                            currentPrice = prices[round][stock];
+                            break;
+                        }
+                    }
+                    currentPrice = currentPrice || 0;
+                }
+                totalStockValue += (t.holdings[stock] * currentPrice);
+            }
         }
         return { team: t.teamName, total: t.cash + totalStockValue };
     }).sort((a, b) => b.total - a.total);
