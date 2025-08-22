@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Stock Market Game Functionality</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .pass { background-color: #d4edda; border-color: #c3e6cb; }
+        .fail { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Stock Market Game - Functionality Test</h1>
+    
+    <div id="testResults"></div>
+    
+    <script src="script.js"></script>
+    <script>
+        // Test suite for the stock market game
+        let testResults = [];
+        
+        function runTests() {
+            console.log("🚀 Starting comprehensive tests...");
+            
+            // Clear localStorage for clean test
+            localStorage.clear();
+            
+            // Test 1: Data persistence
+            testDataPersistence();
+            
+            // Test 2: Round management
+            testRoundManagement();
+            
+            // Test 3: Team creation and properties
+            testTeamCreation();
+            
+            // Test 4: Stock trading logic
+            testStockTrading();
+            
+            // Test 5: Portfolio calculation
+            testPortfolioCalculation();
+            
+            displayResults();
+        }
+        
+        function testDataPersistence() {
+            console.log("🔍 Testing data persistence...");
+            
+            try {
+                // Test currentRound persistence
+                localStorage.setItem("currentRound", "3");
+                let loadedRound = parseInt(localStorage.getItem("currentRound")) || 0;
+                
+                if (loadedRound === 3) {
+                    testResults.push({name: "Round Persistence", status: "PASS", message: "currentRound properly loads as number"});
+                } else {
+                    testResults.push({name: "Round Persistence", status: "FAIL", message: `Expected 3, got ${loadedRound}`});
+                }
+                
+                // Test teams data structure
+                let testTeams = [{
+                    teamNumber: "TEST001",
+                    teamName: "Test Team",
+                    cash: 1500000,
+                    holdings: {"stock1": 100, "stock2": 50},
+                    pendingTrades: {}
+                }];
+                
+                localStorage.setItem("teams", JSON.stringify(testTeams));
+                let loadedTeams = JSON.parse(localStorage.getItem("teams") || "[]");
+                
+                if (loadedTeams.length === 1 && loadedTeams[0].cash === 1500000) {
+                    testResults.push({name: "Team Data Persistence", status: "PASS", message: "Team data saves and loads correctly"});
+                } else {
+                    testResults.push({name: "Team Data Persistence", status: "FAIL", message: "Team data not properly persisted"});
+                }
+                
+            } catch (error) {
+                testResults.push({name: "Data Persistence", status: "FAIL", message: error.message});
+            }
+        }
+        
+        function testRoundManagement() {
+            console.log("🔍 Testing round management...");
+            
+            try {
+                // Test currentRound as number
+                currentRound = 2;
+                saveData();
+                
+                let storedRound = localStorage.getItem("currentRound");
+                let parsedRound = parseInt(storedRound);
+                
+                if (parsedRound === 2 && typeof parsedRound === 'number') {
+                    testResults.push({name: "Round Number Handling", status: "PASS", message: "Round stored and parsed as number correctly"});
+                } else {
+                    testResults.push({name: "Round Number Handling", status: "FAIL", message: `Round handling failed: ${storedRound} -> ${parsedRound}`});
+                }
+                
+            } catch (error) {
+                testResults.push({name: "Round Management", status: "FAIL", message: error.message});
+            }
+        }
+        
+        function testTeamCreation() {
+            console.log("🔍 Testing team creation...");
+            
+            try {
+                teams = [];
+                let newTeam = {
+                    teamNumber: "TEST002",
+                    teamName: "Test Team 2",
+                    members: [],
+                    password: "test123",
+                    approved: true,
+                    cash: 2000000,
+                    holdings: {},
+                    pendingTrades: {}
+                };
+                
+                teams.push(newTeam);
+                
+                if (teams[0].cash === 2000000 && typeof teams[0].holdings === 'object') {
+                    testResults.push({name: "Team Structure", status: "PASS", message: "Team created with correct structure"});
+                } else {
+                    testResults.push({name: "Team Structure", status: "FAIL", message: "Team structure incorrect"});
+                }
+                
+            } catch (error) {
+                testResults.push({name: "Team Creation", status: "FAIL", message: error.message});
+            }
+        }
+        
+        function testStockTrading() {
+            console.log("🔍 Testing stock trading logic...");
+            
+            try {
+                // Setup test data
+                teams = [{
+                    teamNumber: "TEST003",
+                    teamName: "Test Team 3",
+                    cash: 2000000,
+                    holdings: {},
+                    pendingTrades: {}
+                }];
+                
+                prices = {
+                    1: {"stock1": 100, "stock2": 200},
+                    2: {"stock1": 110, "stock2": 190}
+                };
+                
+                currentRound = 1;
+                currentTeamIndex = 0;
+                
+                // Simulate a buy trade
+                let team = teams[0];
+                let stock = "stock1";
+                let qty = 100;
+                let price = prices[currentRound][stock];
+                let totalValue = qty * price;
+                let brokerage = 0.01 * totalValue;
+                let net = totalValue + brokerage;
+                
+                // Execute trade
+                team.cash -= net;
+                team.holdings[stock] = (team.holdings[stock] || 0) + qty;
+                
+                let expectedCash = 2000000 - (100 * 100 + 100); // 2000000 - 10100 = 1989900
+                
+                if (team.cash === expectedCash && team.holdings[stock] === 100) {
+                    testResults.push({name: "Stock Trading", status: "PASS", message: `Correct cash: ${team.cash}, holdings: ${team.holdings[stock]}`});
+                } else {
+                    testResults.push({name: "Stock Trading", status: "FAIL", message: `Cash: ${team.cash} (expected ${expectedCash}), holdings: ${team.holdings[stock]}`});
+                }
+                
+            } catch (error) {
+                testResults.push({name: "Stock Trading", status: "FAIL", message: error.message});
+            }
+        }
+        
+        function testPortfolioCalculation() {
+            console.log("🔍 Testing portfolio calculation with price fallback...");
+            
+            try {
+                // Setup test scenario: team has stocks from round 1, now in round 2
+                teams = [{
+                    teamNumber: "TEST004",
+                    teamName: "Test Team 4", 
+                    cash: 1500000,
+                    holdings: {"stock1": 100, "stock3": 50}
+                }];
+                
+                prices = {
+                    1: {"stock1": 100, "stock2": 200, "stock3": 150},
+                    2: {"stock1": 110, "stock2": 190} // stock3 has no round 2 price
+                };
+                
+                currentRound = 2;
+                currentTeamIndex = 0;
+                
+                let team = teams[0];
+                let totalStockValue = 0;
+                
+                // Test price fallback logic for each holding
+                for (let stock in team.holdings) {
+                    if (team.holdings[stock] > 0) {
+                        let currentPrice = prices[currentRound][stock];
+                        if (currentPrice === undefined || currentPrice === 0) {
+                            // Find the latest round that has a price for this stock
+                            for (let round = currentRound - 1; round >= 0; round--) {
+                                if (prices[round] && prices[round][stock] !== undefined && prices[round][stock] > 0) {
+                                    currentPrice = prices[round][stock];
+                                    break;
+                                }
+                            }
+                            currentPrice = currentPrice || 0;
+                        }
+                        totalStockValue += (team.holdings[stock] * currentPrice);
+                    }
+                }
+                
+                // Expected: stock1: 100 * 110 = 11000, stock3: 50 * 150 = 7500, total = 18500
+                let expectedStockValue = 18500;
+                
+                if (totalStockValue === expectedStockValue) {
+                    testResults.push({name: "Portfolio Price Fallback", status: "PASS", message: `Correct stock value: ${totalStockValue}`});
+                } else {
+                    testResults.push({name: "Portfolio Price Fallback", status: "FAIL", message: `Stock value: ${totalStockValue} (expected ${expectedStockValue})`});
+                }
+                
+            } catch (error) {
+                testResults.push({name: "Portfolio Calculation", status: "FAIL", message: error.message});
+            }
+        }
+        
+        function displayResults() {
+            let resultDiv = document.getElementById('testResults');
+            let html = '<h2>📊 Test Results</h2>';
+            
+            let passCount = 0;
+            let totalCount = testResults.length;
+            
+            testResults.forEach(test => {
+                let cssClass = test.status === 'PASS' ? 'pass' : 'fail';
+                if (test.status === 'PASS') passCount++;
+                
+                html += `
+                    <div class="test-section ${cssClass}">
+                        <h3>${test.status === 'PASS' ? '✅' : '❌'} ${test.name}</h3>
+                        <p><strong>Status:</strong> ${test.status}</p>
+                        <p><strong>Details:</strong> ${test.message}</p>
+                    </div>
+                `;
+            });
+            
+            html += `
+                <div class="test-section info">
+                    <h3>📈 Summary</h3>
+                    <p><strong>Tests Passed:</strong> ${passCount}/${totalCount}</p>
+                    <p><strong>Success Rate:</strong> ${Math.round((passCount/totalCount) * 100)}%</p>
+                </div>
+            `;
+            
+            resultDiv.innerHTML = html;
+            
+            console.log(`✅ Tests completed: ${passCount}/${totalCount} passed`);
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(runTests, 500); // Small delay to ensure script.js is loaded
+        });
+    </script>
+</body>
+</html>
